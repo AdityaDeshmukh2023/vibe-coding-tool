@@ -1,0 +1,12 @@
+procs:
+  dev:next:
+    cmd: ["cmd", "/c", "pnpm", "run", "dev:next"]
+
+  dev:webhook:
+    cmd: ["cmd", "/c", "pnpm", "run", "dev:webhook"]
+
+  dev:inngest:
+    cmd: ["cmd", "/c", "pnpm", "run", "dev:inngest"]
+
+  db:studio:
+    cmd: ["cmd", "/c", "pnpm", "run", "db:studio"]
