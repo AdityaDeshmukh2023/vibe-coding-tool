@@ -36,7 +36,7 @@ Here is the folder structure of this app.
 
 <!--- FOLDER_STRUCTURE_START --->
 ```bash
-lovable-clone/
+clean_interface/
   |- prisma/
     |-- migrations/
     |-- schema.prisma
@@ -132,7 +132,7 @@ NEXT_PUBLIC_APP_BASE_URL="http://localhost:3000"
 ```
 
 - Keep as `http://localhost:3000` during development.
-- Change to your deployed URL (e.g., `https://clone-vibe.vercel.app`) in production.
+- Change to your deployed URL (e.g., `https://your-app.vercel.app`) in production.
 
 ---
 
@@ -199,7 +199,7 @@ NEXT_PUBLIC_APP_BASE_URL="http://localhost:3000"
 
 ## :wrench: Stats
 
-[![Stats for Vibe](/.github/images/stats.svg 'Stats for Vibe')](https://pagespeed.web.dev/analysis?url=https://clone-vibe.vercel.app 'Stats for Vibe')
+[![Stats for Vibe](/.github/images/stats.svg 'Stats for Vibe')](https://pagespeed.web.dev/analysis?url=https://your-app.vercel.app 'Stats for Vibe')
 
 ## :raised_hands: Contribute
 

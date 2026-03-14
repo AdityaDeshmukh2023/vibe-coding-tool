@@ -143,8 +143,8 @@ export const SITE_CONFIG: Metadata = {
 	},
 	applicationName: 'Vibe',
 	authors: {
-		name: 'Sanidhya Kumar Verma',
-		url: 'https://github.com/sanidhyy',
+		name: 'Aditya Deshmukh',
+		url: 'https://github.com/AdityaDeshmukh2023',
 	},
 	description:
 		'AI-powered application builder that lets you create apps and websites by chatting with AI. Build full-stack applications with live previews and code generation using Next.js 16.',
@@ -197,5 +197,5 @@ export const SITE_CONFIG: Metadata = {
 } as const;
 
 export const LINKS = {
-	SOURCE_CODE: 'https://github.com/sanidhyy/lovable-clone',
+	SOURCE_CODE: 'https://github.com/AdityaDeshmukh2023/clean_interface',
 } as const;
