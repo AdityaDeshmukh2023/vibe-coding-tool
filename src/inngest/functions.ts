@@ -1,7 +1,6 @@
 import { Sandbox } from '@e2b/code-interpreter';
 import {
 	createAgent,
-	createAgenticModelFromAiAdapter,
 	createNetwork,
 	createState,
 	createTool,
@@ -58,10 +57,17 @@ function createAzureOpenaiAdapter(opts: {
 }) {
 	const baseEndpoint = opts.endpoint.replace(/\/+$/, '');
 	const url = `${baseEndpoint}/openai/deployments/${opts.deployment}/chat/completions?api-version=${opts.apiVersion}`;
+	const baseAdapter = openai({
+		apiKey: opts.apiKey,
+		baseUrl: opts.endpoint,
+		defaultParameters: { temperature: 0.1 },
+		model: opts.model,
+	});
 
-	return createAgenticModelFromAiAdapter({
+	return {
+		...baseAdapter,
 		authKey: opts.apiKey,
-		format: 'azure-openai' as 'openai-chat',
+		format: 'azure-openai' as const,
 		headers: {
 			'Content-Type': 'application/json',
 			'api-key': opts.apiKey,
@@ -75,7 +81,7 @@ function createAzureOpenaiAdapter(opts: {
 			model: opts.model,
 		},
 		url,
-	});
+	} as unknown as ReturnType<typeof openai>;
 }
 
 function getModelConfig(settings: ProviderSettings, variant: 'main' | 'mini') {
@@ -162,6 +168,47 @@ export const codeAgentFunction = inngest.createFunction(
 		const sandboxId = sandboxInfo.sandboxId;
 		const sandboxUrl = sandboxInfo.sandboxUrl;
 
+		const previousFiles = await step.run('get-latest-fragment-files', async () => {
+			const latestFragment = await db.fragment.findFirst({
+				orderBy: {
+					createdAt: 'desc',
+				},
+				select: {
+					files: true,
+				},
+				where: {
+					message: {
+						projectId,
+					},
+				},
+			});
+
+			if (!latestFragment || typeof latestFragment.files !== 'object' || !latestFragment.files || Array.isArray(latestFragment.files)) {
+				return {} as Record<string, string>;
+			}
+
+			const rawFiles = latestFragment.files as Record<string, unknown>;
+			const files: Record<string, string> = {};
+
+			for (const [path, content] of Object.entries(rawFiles)) {
+				if (typeof content === 'string') files[path] = content;
+			}
+
+			return files;
+		});
+
+		await step.run('hydrate-sandbox-from-previous-fragment', async () => {
+			if (Object.keys(previousFiles).length === 0) return 0;
+
+			const sandbox = await getSandbox(sandboxId);
+
+			for (const [path, content] of Object.entries(previousFiles)) {
+				await sandbox.files.write(path, content);
+			}
+
+			return Object.keys(previousFiles).length;
+		});
+
 		// Create an early "in-progress" message with the sandbox preview so
 		// the right-hand panel shows the live sandbox while the agent works.
 		const earlyMessageId = await step.run('create-preview-message', async () => {
@@ -170,7 +217,7 @@ export const codeAgentFunction = inngest.createFunction(
 					content: 'Building your app...',
 					fragment: {
 						create: {
-							files: {},
+							files: previousFiles,
 							sandboxUrl,
 							title: 'Working...',
 						},
@@ -210,7 +257,7 @@ export const codeAgentFunction = inngest.createFunction(
 
 		const state = createState<AgentState>(
 			{
-				files: {},
+				files: previousFiles,
 				summary: '',
 			},
 			{
